@@ -10,7 +10,13 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps: 
-      - run: aws cloudformation create-stack --stack-name udacity-module3-infra --template-body file:///template.yml --parameters ParameterKey=$AWS_ACCESS_KEY_ID, ParameterKey=AWS_SECRET_ACCESS_KEY, ParameterKey=AWS_DEFAULT_REGION
+      - checkout
+      - run: 
+          name: "Create the infra" 
+          command: |
+            aws cloudformation deploy \
+            --stack-name udacity-module3-infra \
+            --template template.yml
       #- run: echo [all] > ~/inventory
       #- run:
       #    name: " list and append the ec2 instances to inventory "
