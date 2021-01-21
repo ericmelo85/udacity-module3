@@ -16,7 +16,7 @@ jobs:
           command: |
             aws cloudformation deploy \
             --stack-name udacity-module3-infra \
-            --template template.yml
+            --template-file template.yml
       #- run: echo [all] > ~/inventory
       #- run:
       #    name: " list and append the ec2 instances to inventory "
