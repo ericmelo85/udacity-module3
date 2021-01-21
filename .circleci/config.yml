@@ -8,15 +8,27 @@ version: 2.1
 jobs:
   createInventory:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
+     # - image: amazon/aws-cli
     steps: 
       - checkout
-      - run: 
-          name: "Create the infra" 
+      - add_ssh_keys:
+          fingerprints:
+            - 52:77:8e:14:3e:27:44:10:dc:75:90:a6:90:49:43:14
+      - run:
+          name: Install dependencies
           command: |
-            aws cloudformation deploy \
-            --stack-name udacity-module3-infra \
-            --template-file template.yml
+            apk add --update ansible 
+      - run:
+          name: Configure the server
+          command: |
+            ansible-playbook -i inventory.txt playbook.yml
+     # - run: 
+     #     name: "Create the infra" 
+     #     command: |
+     #       aws cloudformation deploy \
+     #       --stack-name udacity-module3-infra \
+     #       --template-file template.yml
       #- run: echo [all] > ~/inventory
       #- run:
       #    name: " list and append the ec2 instances to inventory "
