@@ -10,18 +10,19 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps: 
-      - run: echo [all] > ~/inventory
-      - run:
-          name: " list and append the ec2 instances to inventory "
-          command: |
-            aws ec2 describe-instances
-            --query 'Reservations[*].Instances[*].PublicIpAddress'
-            --filters "Name=tag:Project,Values=udacity"
-            --output text >> ~/inventory
-      -  persist_to_workspace:
-           root: ~/
-           paths:
-             - .
+      - run: aws cloudformation create-stack --stack-name udacity-module3-infra --template-body file://template.yml --parameters ParameterKey=$AWS_ACCESS_KEY_ID, ParameterKey=AWS_SECRET_ACCESS_KEY, ParameterKey=AWS_DEFAULT_REGION
+      #- run: echo [all] > ~/inventory
+      #- run:
+      #    name: " list and append the ec2 instances to inventory "
+      #    command: |
+      #      aws ec2 describe-instances
+      #      --query 'Reservations[*].Instances[*].PublicIpAddress'
+      #      --filters "Name=tag:Project,Values=udacity"
+      #      --output text >> ~/inventory
+      #-  persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - .
 workflows:
   # Name the workflow "welcome"
   welcome:
