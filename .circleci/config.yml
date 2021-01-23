@@ -19,6 +19,8 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible 
+      - run: export ANSIBLE_HOST_KEY_CHECKING=False
+          
       - run:
           name: Configure the server
           command: |
