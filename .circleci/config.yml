@@ -27,6 +27,12 @@ jobs:
     docker: 
       - image: python:3.7-alpine3.11
     steps:
+      - run: 
+          name: install curl
+          command: |
+            sudo apt update
+            sudo apt upgrade
+            sudo apt install curl
       - run:
           name: Check if the install succeed 
           command: |
