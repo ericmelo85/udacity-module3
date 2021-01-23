@@ -6,7 +6,7 @@ version: 2.1
 #  welcome: circleci/welcome-orb@0.4.1
 # Orchestrate or schedule a set of jobs
 jobs:
-  createInventory:
+  deploy:
     docker:
       - image: python:3.7-alpine3.11
      # - image: amazon/aws-cli
@@ -19,12 +19,22 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible 
-      - run: export ANSIBLE_HOST_KEY_CHECKING=False
-          
       - run:
           name: Configure the server
           command: |
             ansible-playbook -i inventory.txt playbook.yml
+  smoke_test:
+    docker: 
+      - image: python:3.7-alpine3.11
+    steps:
+      - run:
+          name: Check if the install succeed 
+          command: |
+            curl ec2-34-219-203-39.us-west-2.compute.amazonaws.com:3000 
+      - run:
+          name: Fail if non-zero return
+          command: echo "The result of the check failed please inform the dev team"
+          when: on_fail
      # - run: 
      #     name: "Create the infra" 
      #     command: |
@@ -48,4 +58,4 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - createInventory
+      - deploy
