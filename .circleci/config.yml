@@ -30,9 +30,7 @@ jobs:
       - run: 
           name: install curl
           command: |
-            sudo apt update
-            sudo apt upgrade
-            sudo apt install curl
+            apk add --update curl
       - run:
           name: Check if the install succeed 
           command: |
