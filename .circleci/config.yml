@@ -51,7 +51,7 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - destroy_environments
+      - createInfrastructure
       - smoke_test:
           requires:
-            - destroy_environments
+            - createInfrastructure
