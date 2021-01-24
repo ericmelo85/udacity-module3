@@ -35,10 +35,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: 
-          name: exit on failure 
-          command: | 
-            return 1
+      - run: return 1 
       - destroy_environments
             
       #- run: echo [all] > ~/inventory
