@@ -1,0 +1,68 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+# Use a package of configuration called an orb.
+#orbs:
+  # Declare a dependency on the welcome-orb
+#  welcome: circleci/welcome-orb@0.4.1
+# Orchestrate or schedule a set of jobs
+jobs:
+  deploy:
+    docker:
+      - image: python:3.7-alpine3.11
+     # - image: amazon/aws-cli
+    steps: 
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - 52:77:8e:14:3e:27:44:10:dc:75:90:a6:90:49:43:14
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible 
+      - run:
+          name: Configure the server
+          command: |
+            ansible-playbook -i inventory.txt playbook.yml
+  smoke_test:
+    docker: 
+      - image: python:3.7-alpine3.11
+    steps:
+      - run: 
+          name: install curl
+          command: |
+            apk add --update curl
+      - run:
+          name: Check if the install succeed 
+          command: |
+            curl ec2-34-219-203-39.us-west-2.compute.amazonaws.com:3000 
+      - run:
+          name: Fail if non-zero return
+          command: echo "The result of the check failed please inform the dev team"
+          when: on_fail
+     # - run: 
+     #     name: "Create the infra" 
+     #     command: |
+     #       aws cloudformation deploy \
+     #       --stack-name udacity-module3-infra \
+     #       --template-file template.yml
+      #- run: echo [all] > ~/inventory
+      #- run:
+      #    name: " list and append the ec2 instances to inventory "
+      #    command: |
+      #      aws ec2 describe-instances
+      #      --query 'Reservations[*].Instances[*].PublicIpAddress'
+      #      --filters "Name=tag:Project,Values=udacity"
+      #      --output text >> ~/inventory
+      #-  persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - .
+workflows:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
+    jobs:
+      - deploy
+      - smoke_test:
+          requires:
+            - deploy

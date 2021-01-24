@@ -5,46 +5,34 @@ version: 2.1
   # Declare a dependency on the welcome-orb
 #  welcome: circleci/welcome-orb@0.4.1
 # Orchestrate or schedule a set of jobs
+commands:
+  destroy_environments:
+    steps:
+      - run:
+          name: Destroy the stack
+          command: aws cloudformation --delete-stack --stack-name prod-${CIRCLE_WORKFLOW_ID}
 jobs:
-  deploy:
+  createInfrastructure:
     docker:
-      - image: python:3.7-alpine3.11
-     # - image: amazon/aws-cli
+      - image: amazon/aws-cli
     steps: 
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - 52:77:8e:14:3e:27:44:10:dc:75:90:a6:90:49:43:14
-      - run:
-          name: Install dependencies
+      - run: 
+          name: "Create the infra" 
           command: |
-            apk add --update ansible 
-      - run:
-          name: Configure the server
-          command: |
-            ansible-playbook -i inventory.txt playbook.yml
+            aws cloudformation deploy \
+            --stack-name prod-${CIRCLE_WORKFLOW_ID} \
+            --template-file template.yml
   smoke_test:
-    docker: 
-      - image: python:3.7-alpine3.11
+    docker:
+      - image: amazon/aws-cli
     steps:
       - run: 
-          name: install curl
-          command: |
-            apk add --update curl
-      - run:
-          name: Check if the install succeed 
-          command: |
-            curl ec2-34-219-203-39.us-west-2.compute.amazonaws.com:3000 
-      - run:
-          name: Fail if non-zero return
-          command: echo "The result of the check failed please inform the dev team"
-          when: on_fail
-     # - run: 
-     #     name: "Create the infra" 
-     #     command: |
-     #       aws cloudformation deploy \
-     #       --stack-name udacity-module3-infra \
-     #       --template-file template.yml
+          name: exit on failure 
+          command: | 
+            return 1
+      - destroy_environments
+        when: on_fail 
+            
       #- run: echo [all] > ~/inventory
       #- run:
       #    name: " list and append the ec2 instances to inventory "
@@ -62,7 +50,7 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - deploy
+      - destroy_environments
       - smoke_test:
           requires:
-            - deploy
+            - destroy_environments
