@@ -16,7 +16,13 @@ jobs:
   createInfrastructure:
     docker:
       - image: amazon/aws-cli
-    steps: 
+    steps:
+      - run: 
+          name: Diags
+          command: |
+            pwd 
+            ls -la . ..
+            printenv 
       - run: 
           name: "Create the infra" 
           command: |
